@@ -36,10 +36,16 @@ async function checkWebAppAuth() {
             target: { tabId: tabs[0].id },
             func: () => {
               try {
-                const storedUser = localStorage.getItem('smtw_user');
-                return storedUser ? JSON.parse(storedUser) : null;
+                // Check session storage for authentication
+                const sessionToken = sessionStorage.getItem('smtw_session_token');
+                const storedUser = sessionStorage.getItem('smtw_user');
+                
+                if (sessionToken && storedUser) {
+                  return JSON.parse(storedUser);
+                }
+                return null;
               } catch (error) {
-                console.error('Error getting user from localStorage:', error);
+                console.error('Error getting user from sessionStorage:', error);
                 return null;
               }
             }

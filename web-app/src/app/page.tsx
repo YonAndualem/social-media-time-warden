@@ -10,21 +10,26 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is signed in locally
-    const storedUser = localStorage.getItem('smtw_user');
-    if (storedUser) {
+    // Check if user is signed in via session storage
+    const sessionToken = sessionStorage.getItem('smtw_session_token');
+    const storedUser = sessionStorage.getItem('smtw_user');
+    
+    if (sessionToken && storedUser) {
       try {
         const user = JSON.parse(storedUser);
         setUser(user);
       } catch (error) {
-        localStorage.removeItem('smtw_user');
+        // Clear invalid session data
+        sessionStorage.removeItem('smtw_session_token');
+        sessionStorage.removeItem('smtw_user');
       }
     }
     setLoading(false);
   }, []);
 
   const handleSignOut = () => {
-    localStorage.removeItem('smtw_user');
+    sessionStorage.removeItem('smtw_session_token');
+    sessionStorage.removeItem('smtw_user');
     setUser(null);
   };
 

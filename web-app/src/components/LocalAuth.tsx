@@ -13,14 +13,18 @@ export default function Auth({ onAuthenticated }: AuthProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check if user is already signed in locally
-    const storedUser = localStorage.getItem('smtw_user');
-    if (storedUser) {
+    // Check if user is signed in via session storage (more secure for demo)
+    const sessionToken = sessionStorage.getItem('smtw_session_token');
+    const storedUser = sessionStorage.getItem('smtw_user');
+    
+    if (sessionToken && storedUser) {
       try {
         const user = JSON.parse(storedUser);
         onAuthenticated(user);
       } catch (error) {
-        localStorage.removeItem('smtw_user');
+        // Clear invalid session data
+        sessionStorage.removeItem('smtw_session_token');
+        sessionStorage.removeItem('smtw_user');
       }
     }
   }, [onAuthenticated]);
@@ -43,13 +47,15 @@ export default function Auth({ onAuthenticated }: AuthProps) {
         // Hash the password before storing
         const hashedPassword = await hashPassword(password);
         
-        // Store user credentials locally (password is now hashed)
+        // Store user credentials with hashed password (for demo only - not secure for production)
         const users = JSON.parse(localStorage.getItem('smtw_users') || '{}');
-        users[email] = { password: hashedPassword, user };
+        users[email] = { hashedPassword, user };
         localStorage.setItem('smtw_users', JSON.stringify(users));
         
-        // Store current user session
-        localStorage.setItem('smtw_user', JSON.stringify(user));
+        // Generate a session token instead of storing user directly
+        const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        sessionStorage.setItem('smtw_session_token', sessionToken);
+        sessionStorage.setItem('smtw_user', JSON.stringify(user));
         
         onAuthenticated(user);
       } else {
@@ -57,8 +63,11 @@ export default function Auth({ onAuthenticated }: AuthProps) {
         const users = JSON.parse(localStorage.getItem('smtw_users') || '{}');
         const userAccount = users[email];
         
-        if (userAccount && await verifyPassword(password, userAccount.password)) {
-          localStorage.setItem('smtw_user', JSON.stringify(userAccount.user));
+        if (userAccount && await verifyPassword(password, userAccount.hashedPassword)) {
+          // Generate a session token
+          const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          sessionStorage.setItem('smtw_session_token', sessionToken);
+          sessionStorage.setItem('smtw_user', JSON.stringify(userAccount.user));
           onAuthenticated(userAccount.user);
         } else {
           setError('Invalid email or password');
@@ -83,7 +92,10 @@ export default function Auth({ onAuthenticated }: AuthProps) {
         created_at: new Date().toISOString()
       };
       
-      localStorage.setItem('smtw_user', JSON.stringify(demoUser));
+      // Generate a session token for demo user
+      const sessionToken = `demo_session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      sessionStorage.setItem('smtw_session_token', sessionToken);
+      sessionStorage.setItem('smtw_user', JSON.stringify(demoUser));
       onAuthenticated(demoUser);
     } catch (err) {
       setError('Demo login failed');
@@ -99,6 +111,17 @@ export default function Auth({ onAuthenticated }: AuthProps) {
           <h1 className="text-3xl font-bold text-white mb-2">🛡️ Social Media Time Warden</h1>
           <p className="text-purple-100">Sign in to track your digital wellbeing</p>
           <p className="text-purple-200 text-sm mt-2">Local demo version</p>
+        </div>
+
+        {/* Security Warning */}
+        <div className="mb-6 p-4 bg-yellow-500/20 border border-yellow-500/40 rounded-lg">
+          <div className="flex items-start space-x-2">
+            <span className="text-yellow-300 text-lg">⚠️</span>
+            <div className="text-yellow-100 text-sm">
+              <p className="font-medium mb-1">Demo Security Notice</p>
+              <p>This is a demonstration app with limited security. Credentials are temporarily stored and sessions expire when you close the browser. Do not use real passwords.</p>
+            </div>
+          </div>
         </div>
 
         {error && (
