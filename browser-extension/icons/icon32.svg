@@ -1,0 +1,30 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient circle -->
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4338ca;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <circle cx="16" cy="16" r="14" fill="url(#bg)" stroke="#312e81" stroke-width="2"/>
+  
+  <!-- Clock face -->
+  <circle cx="16" cy="16" r="8" fill="#ffffff" opacity="0.9"/>
+  
+  <!-- Clock hands -->
+  <line x1="16" y1="16" x2="16" y2="8" stroke="#1f2937" stroke-width="2" stroke-linecap="round"/>
+  <line x1="16" y1="16" x2="24" y2="16" stroke="#1f2937" stroke-width="1" stroke-linecap="round"/>
+  
+  <!-- Center dot -->
+  <circle cx="16" cy="16" r="2" fill="#1f2937"/>
+  
+  <!-- Hour markers -->
+  <circle cx="16" cy="4" r="1" fill="#6b7280"/>
+  <circle cx="16" cy="28" r="1" fill="#6b7280"/>
+  <circle cx="4" cy="16" r="1" fill="#6b7280"/>
+  <circle cx="28" cy="16" r="1" fill="#6b7280"/>
+  
+  <!-- Shield/warden symbol -->
+  <path d="M16 24 L12 28 L16 30 L20 28 Z" fill="#10b981" stroke="#059669" stroke-width="1"/>
+</svg>

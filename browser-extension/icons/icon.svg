@@ -1,0 +1,23 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#4F46E5" stroke="#312E81" stroke-width="4"/>
+  
+  <!-- Clock face -->
+  <circle cx="64" cy="64" r="45" fill="#FFFFFF"/>
+  
+  <!-- Clock hands -->
+  <line x1="64" y1="64" x2="64" y2="35" stroke="#1F2937" stroke-width="3" stroke-linecap="round"/>
+  <line x1="64" y1="64" x2="85" y2="64" stroke="#1F2937" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Center dot -->
+  <circle cx="64" cy="64" r="4" fill="#1F2937"/>
+  
+  <!-- Hour markers -->
+  <circle cx="64" cy="25" r="2" fill="#6B7280"/>
+  <circle cx="64" cy="103" r="2" fill="#6B7280"/>
+  <circle cx="25" cy="64" r="2" fill="#6B7280"/>
+  <circle cx="103" cy="64" r="2" fill="#6B7280"/>
+  
+  <!-- Shield symbol (for protection/warden) -->
+  <path d="M64 85 L55 95 L64 105 L73 95 Z" fill="#10B981" stroke="#059669" stroke-width="1"/>
+</svg>

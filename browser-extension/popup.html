@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 350px;
+      min-height: 400px;
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .header p {
+      margin: 5px 0 0 0;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    
+    .stats-container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+    
+    .platform-name {
+      font-weight: 500;
+    }
+    
+    .time-spent {
+      font-weight: 600;
+      color: #FFE082;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      opacity: 0.7;
+    }
+    
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      opacity: 0.7;
+      font-style: italic;
+    }
+    
+    .user-info {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 15px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .user-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .user-email {
+      font-size: 14px;
+      font-weight: 500;
+      color: #FFE082;
+    }
+    
+    .btn-signout {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-signout:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+    
+    .login-prompt {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    
+    .prompt-message p {
+      margin: 0 0 15px 0;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🛡️ Time Warden</h1>
+    <p>Social Media Usage Today</p>
+  </div>
+
+  <!-- User info section -->
+  <div id="userInfo" class="user-info" style="display: none;">
+    <div class="user-display">
+      <span class="user-email" id="userEmail"></span>
+      <button class="btn-signout" id="signOutBtn">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Login prompt section -->
+  <div id="loginPrompt" class="login-prompt" style="display: none;">
+    <div class="prompt-message">
+      <p>Please log in to track your usage</p>
+      <button class="btn btn-primary" id="openLoginBtn">🔑 Login</button>
+    </div>
+  </div>
+  
+  <div id="content">
+    <div class="loading">Loading your stats...</div>
+  </div>
+  
+  <div class="buttons">
+    <button class="btn btn-primary" id="openDashboard">📊 Dashboard</button>
+    <button class="btn btn-secondary" id="setLimits">⚙️ Limits</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
