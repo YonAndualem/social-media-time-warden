@@ -6,9 +6,50 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Validate environment variables
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+  console.error('Error: Missing required environment variables SUPABASE_URL or SUPABASE_ANON_KEY');
+  process.exit(1);
+}
+
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Add size limit for security
+
+// Input validation middleware
+const validateUsageInput = (req, res, next) => {
+  const { user_id, platform, date, time_spent } = req.body;
+  
+  if (!user_id || typeof user_id !== 'string' || user_id.trim().length === 0) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Invalid user_id: must be a non-empty string' 
+    });
+  }
+  
+  if (!platform || typeof platform !== 'string' || platform.trim().length === 0) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Invalid platform: must be a non-empty string' 
+    });
+  }
+  
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Invalid date: must be in YYYY-MM-DD format' 
+    });
+  }
+  
+  if (time_spent === undefined || typeof time_spent !== 'number' || time_spent < 0 || time_spent > 1440) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Invalid time_spent: must be a number between 0 and 1440 minutes' 
+    });
+  }
+  
+  next();
+};
 
 // Supabase client
 const supabase = createClient(
@@ -24,15 +65,16 @@ app.get('/health', (req, res) => {
 });
 
 // POST /usage - Receive usage data from browser extension
-app.post('/usage', async (req, res) => {
+app.post('/usage', validateUsageInput, async (req, res) => {
   try {
     const { user_id, platform, date, time_spent } = req.body;
     
-    // Validate required fields
-    if (!user_id || !platform || !date || time_spent === undefined) {
+    // Additional business logic validation
+    const validPlatforms = ['Twitter', 'Facebook', 'Instagram', 'TikTok', 'YouTube', 'Snapchat'];
+    if (!validPlatforms.includes(platform)) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Missing required fields: user_id, platform, date, time_spent' 
+        error: `Invalid platform: must be one of ${validPlatforms.join(', ')}` 
       });
     }
 
@@ -40,15 +82,18 @@ app.post('/usage', async (req, res) => {
     const { data, error } = await supabase
       .from('usage_records')
       .upsert({
-        user_id,
-        platform,
+        user_id: user_id.trim(),
+        platform: platform.trim(),
         date,
         time_spent
       }, {
         onConflict: 'user_id,platform,date'
       });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
 
     res.json({ success: true, data });
   } catch (error) {

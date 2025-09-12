@@ -16,7 +16,7 @@ const PLATFORMS = {
   'www.snapchat.com': 'Snapchat'
 };
 
-const API_BASE_URL = 'http://localhost:3002';
+const API_BASE_URL = 'http://localhost:3001';
 
 let activeTabInfo = {
   tabId: null,
@@ -176,12 +176,20 @@ async function saveCurrentSession() {
   }
   
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-  const userId = await getUserId();
-  
-  console.log(`Saving usage: userId=${userId}, platform=${activeTabInfo.platform}, date=${today}, time=${timeSpent}`);
   
   try {
-    // Send usage data to MCP server
+    const userId = await getUserId();
+    if (!userId) {
+      console.warn('No authenticated user found, cannot save session');
+      return;
+    }
+    
+    console.log(`Saving usage: userId=${userId}, platform=${activeTabInfo.platform}, date=${today}, time=${timeSpent}`);
+    
+    // Send usage data to MCP server with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
     const response = await fetch(`${API_BASE_URL}/usage`, {
       method: 'POST',
       headers: {
@@ -192,19 +200,26 @@ async function saveCurrentSession() {
         platform: activeTabInfo.platform,
         date: today,
         time_spent: timeSpent
-      })
+      }),
+      signal: controller.signal
     });
     
-    if (response.ok) {
-      console.log(`Successfully saved ${timeSpent} minutes for ${activeTabInfo.platform}`);
-      const responseData = await response.text();
-      console.log('Server response:', responseData);
-    } else {
-      console.error('Server responded with error:', response.status, await response.text());
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
     
+    const responseData = await response.text();
+    console.log(`Successfully saved ${timeSpent} minutes for ${activeTabInfo.platform}`);
+    console.log('Server response:', responseData);
+    
   } catch (error) {
-    console.error('Error saving usage data:', error);
+    if (error.name === 'AbortError') {
+      console.error('Request timed out while saving usage data');
+    } else {
+      console.error('Error saving usage data:', error);
+    }
     
     // Store locally if server is unavailable
     await storeUsageLocally(userId, activeTabInfo.platform, today, timeSpent);
@@ -223,10 +238,15 @@ async function checkLimitsRealTime() {
   
   console.log(`Real-time check - ${activeTabInfo.platform}: ${sessionTime}m this session, ${totalTimeToday}m today total`);
   
-  const userId = await getUserId();
-  const today = new Date().toISOString().split('T')[0];
-  
   try {
+    const userId = await getUserId();
+    if (!userId) {
+      console.warn('No authenticated user for real-time check');
+      return;
+    }
+    
+    const today = new Date().toISOString().split('T')[0];
+    
     // Check if platform is snoozed
     const snoozeData = await getSnoozeData(activeTabInfo.platform, today);
     if (snoozeData && snoozeData.isActive) {
@@ -234,8 +254,20 @@ async function checkLimitsRealTime() {
       return; // Skip limit check during snooze
     }
 
-    // Get daily limits
-    const limitsResponse = await fetch(`${API_BASE_URL}/limit?user_id=${userId}`);
+    // Get daily limits with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+    
+    const limitsResponse = await fetch(`${API_BASE_URL}/limit?user_id=${userId}`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!limitsResponse.ok) {
+      throw new Error(`HTTP error! status: ${limitsResponse.status}`);
+    }
+    
     const limits = await limitsResponse.json();
     
     const platformLimit = limits.find(l => l.platform === activeTabInfo.platform);
@@ -263,15 +295,36 @@ async function checkLimitsRealTime() {
       console.log(`WARNING: ${activeTabInfo.platform} - ${totalTimeToday}m >= ${adjustedLimit * 0.8}m (80% of limit)`);
       showWarningNotification(activeTabInfo.platform, totalTimeToday, adjustedLimit);
     }
-    
   } catch (error) {
-    console.error('Error in real-time limit check:', error);
+    if (error.name === 'AbortError') {
+      console.error('Real-time limit check timed out');
+    } else {
+      console.error('Error during real-time limit check:', error);
+    }
+    // Continue silently - don't disrupt user experience for limit check failures
   }
 }
 
 async function getTodayUsage(userId, platform, date) {
   try {
-    const response = await fetch(`${API_BASE_URL}/usage?user_id=${userId}&date=${date}`);
+    if (!userId) {
+      console.warn('No user ID provided for getTodayUsage');
+      return 0;
+    }
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+    
+    const response = await fetch(`${API_BASE_URL}/usage?user_id=${userId}&date=${date}`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const usage = await response.json();
     
     const platformUsage = usage.find(u => u.platform === platform);
@@ -280,7 +333,11 @@ async function getTodayUsage(userId, platform, date) {
     console.log(`Today's usage for ${platform}: ${totalTime} minutes`);
     return totalTime;
   } catch (error) {
-    console.error('Error getting today usage:', error);
+    if (error.name === 'AbortError') {
+      console.error('Getting today usage timed out');
+    } else {
+      console.error('Error getting today usage:', error);
+    }
     return 0;
   }
 }

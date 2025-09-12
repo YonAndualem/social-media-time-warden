@@ -1,21 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { DashboardProps, UsageRecord as UsageRecordType, DailyLimit } from '../types';
 
-const API_BASE_URL = 'http://localhost:3002';
+const API_BASE_URL = 'http://localhost:3001';
 
 interface UsageRecord {
   platform: string;
   time_spent: number;
 }
 
-interface DailyLimit {
-  platform: string;
-  daily_limit: number;
-}
-
-interface DashboardProps {
-  user: any;
+interface DashboardPropsExtended extends DashboardProps {
   onSignOut: () => void;
 }
 
@@ -37,7 +32,7 @@ const PLATFORM_EMOJIS = {
   Snapchat: '👻'
 };
 
-export default function Dashboard({ user, onSignOut }: DashboardProps) {
+export default function Dashboard({ user, onSignOut }: DashboardPropsExtended) {
   const [usageData, setUsageData] = useState<UsageRecord[]>([]);
   const [limits, setLimits] = useState<DailyLimit[]>([]);
   const [loading, setLoading] = useState(true);

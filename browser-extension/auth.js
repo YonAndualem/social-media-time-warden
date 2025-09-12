@@ -22,23 +22,42 @@ async function getAuthenticatedUserId() {
 
 async function checkWebAppAuth() {
   try {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       // Check if dashboard is open and get auth state
       chrome.tabs.query({url: 'http://localhost:3000/*'}, (tabs) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        
         if (tabs.length > 0) {
           // Execute script to get user session from web app
           chrome.scripting.executeScript({
             target: { tabId: tabs[0].id },
             func: () => {
-              const storedUser = localStorage.getItem('smtw_user');
-              return storedUser ? JSON.parse(storedUser) : null;
+              try {
+                const storedUser = localStorage.getItem('smtw_user');
+                return storedUser ? JSON.parse(storedUser) : null;
+              } catch (error) {
+                console.error('Error getting user from localStorage:', error);
+                return null;
+              }
             }
           }, (results) => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+              return;
+            }
+            
             if (results && results[0] && results[0].result) {
               const user = results[0].result;
               // Store the user in extension storage
-              chrome.storage.local.set({ local_auth_user: JSON.stringify(user) });
-              resolve(user.id);
+              chrome.storage.local.set({ local_auth_user: JSON.stringify(user) }, () => {
+                if (chrome.runtime.lastError) {
+                  console.error('Error storing auth session:', chrome.runtime.lastError);
+                }
+                resolve(user.id);
+              });
             } else {
               resolve(null);
             }
@@ -56,10 +75,19 @@ async function checkWebAppAuth() {
 
 // Store auth session when user signs in (called from web app)
 async function storeAuthSession(user) {
-  await chrome.storage.local.set({
-    local_auth_user: JSON.stringify(user)
-  });
-  console.log('Stored auth session for user:', user.id);
+  try {
+    if (!user || !user.id) {
+      throw new Error('Invalid user object provided');
+    }
+    
+    await chrome.storage.local.set({
+      local_auth_user: JSON.stringify(user)
+    });
+    console.log('Stored auth session for user:', user.id);
+  } catch (error) {
+    console.error('Error storing auth session:', error);
+    throw error;
+  }
 }
 
 // Clear auth session when user signs out

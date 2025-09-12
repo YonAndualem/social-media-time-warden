@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Dashboard from '@/components/Dashboard';
 import LocalAuth from '@/components/LocalAuth';
+import { User } from '@/types';
 
 export default function Home() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

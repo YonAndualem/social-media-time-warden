@@ -3,17 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Modal from './Modal';
+import { LimitsManagerProps, DailyLimit, SupportedPlatform } from '../types';
 
-const API_BASE_URL = 'http://localhost:3002';
+const API_BASE_URL = 'http://localhost:3001';
 
-interface DailyLimit {
-  platform: string;
-  daily_limit: number;
-}
+const PLATFORMS: SupportedPlatform[] = ['Twitter', 'Facebook', 'Instagram', 'TikTok', 'YouTube', 'Snapchat'];
 
-const PLATFORMS = ['Twitter', 'Facebook', 'Instagram', 'TikTok', 'YouTube', 'Snapchat'];
-
-const PLATFORM_EMOJIS = {
+const PLATFORM_EMOJIS: Record<SupportedPlatform, string> = {
   Twitter: '🐦',
   Facebook: '📘',
   Instagram: '📷',
@@ -21,10 +17,6 @@ const PLATFORM_EMOJIS = {
   YouTube: '📺',
   Snapchat: '👻'
 };
-
-interface LimitsManagerProps {
-  user: any;
-}
 
 export default function LimitsManager({ user }: LimitsManagerProps) {
   const [limits, setLimits] = useState<Record<string, number>>({});

@@ -5,7 +5,7 @@
 Your Social Media Time Warden system is now running with local authentication! Here's how to use it:
 
 ## 🚀 Current Status
-- ✅ MCP Server running on port 3002
+- ✅ MCP Server running on port 3001
 - ✅ Web Dashboard running on port 3000
 - ✅ Local authentication system active
 - ✅ Browser extension ready for installation
@@ -80,7 +80,7 @@ Your Social Media Time Warden system is now running with local authentication! H
 
 ### Dashboard Not Updating?
 1. Ensure you're logged in with the same account as the extension
-2. Check that the MCP server is running on port 3002
+2. Check that the MCP server is running on port 3001
 3. Refresh the dashboard page
 4. Verify extension popup shows your email address
 

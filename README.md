@@ -103,7 +103,7 @@ cd social-media-time-warden
 cd mcp-server
 npm install
 npm start
-# Server runs on http://localhost:3002
+# Server runs on http://localhost:3001
 ```
 
 ### 3️⃣ Start Web Dashboard

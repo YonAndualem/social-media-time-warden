@@ -70,7 +70,7 @@ Your Social Media Time Warden extension now has full authentication integration!
 
 2. **Stats not showing in extension:**
    - Check browser console for errors
-   - Ensure MCP server is running (port 3002)
+   - Ensure MCP server is running (port 3001)
    - Visit social media sites for at least 1 minute
 
 3. **Sign out doesn't work:**

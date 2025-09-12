@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-interface AuthProps {
-  onAuthenticated: (user: any) => void;
-}
+import { hashPassword, verifyPassword } from '../utils/crypto';
+import { User, AuthProps } from '../types';
 
 // Local authentication system (fallback when Supabase is not available)
 export default function Auth({ onAuthenticated }: AuthProps) {
@@ -36,15 +34,18 @@ export default function Auth({ onAuthenticated }: AuthProps) {
       // Simple local authentication
       if (isSignUp) {
         // Create a new user locally
-        const user = {
+        const user: User = {
           id: `user_${Date.now()}`,
           email: email,
           created_at: new Date().toISOString()
         };
         
-        // Store user credentials locally (in production, this would be secure)
+        // Hash the password before storing
+        const hashedPassword = await hashPassword(password);
+        
+        // Store user credentials locally (password is now hashed)
         const users = JSON.parse(localStorage.getItem('smtw_users') || '{}');
-        users[email] = { password, user };
+        users[email] = { password: hashedPassword, user };
         localStorage.setItem('smtw_users', JSON.stringify(users));
         
         // Store current user session
@@ -56,7 +57,7 @@ export default function Auth({ onAuthenticated }: AuthProps) {
         const users = JSON.parse(localStorage.getItem('smtw_users') || '{}');
         const userAccount = users[email];
         
-        if (userAccount && userAccount.password === password) {
+        if (userAccount && await verifyPassword(password, userAccount.password)) {
           localStorage.setItem('smtw_user', JSON.stringify(userAccount.user));
           onAuthenticated(userAccount.user);
         } else {
@@ -76,7 +77,7 @@ export default function Auth({ onAuthenticated }: AuthProps) {
     
     try {
       // Create demo user
-      const demoUser = {
+      const demoUser: User = {
         id: 'demo_user_12345',
         email: 'demo@socialwarden.app',
         created_at: new Date().toISOString()
