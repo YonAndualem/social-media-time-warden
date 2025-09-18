@@ -16,7 +16,7 @@ export default function Auth({ onAuthenticated }: AuthProps) {
     // Check if user is signed in via session storage (more secure for demo)
     const sessionToken = sessionStorage.getItem('smtw_session_token');
     const storedUser = sessionStorage.getItem('smtw_user');
-    
+
     if (sessionToken && storedUser) {
       try {
         const user = JSON.parse(storedUser);
@@ -43,26 +43,26 @@ export default function Auth({ onAuthenticated }: AuthProps) {
           email: email,
           created_at: new Date().toISOString()
         };
-        
+
         // Hash the password before storing
         const hashedPassword = await hashPassword(password);
-        
+
         // Store user credentials with hashed password (for demo only - not secure for production)
         const users = JSON.parse(localStorage.getItem('smtw_users') || '{}');
         users[email] = { hashedPassword, user };
         localStorage.setItem('smtw_users', JSON.stringify(users));
-        
+
         // Generate a session token instead of storing user directly
         const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         sessionStorage.setItem('smtw_session_token', sessionToken);
         sessionStorage.setItem('smtw_user', JSON.stringify(user));
-        
+
         onAuthenticated(user);
       } else {
         // Sign in with existing user
         const users = JSON.parse(localStorage.getItem('smtw_users') || '{}');
         const userAccount = users[email];
-        
+
         if (userAccount && await verifyPassword(password, userAccount.hashedPassword)) {
           // Generate a session token
           const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -83,7 +83,7 @@ export default function Auth({ onAuthenticated }: AuthProps) {
   const handleDemoLogin = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       // Create demo user
       const demoUser: User = {
@@ -91,7 +91,7 @@ export default function Auth({ onAuthenticated }: AuthProps) {
         email: 'demo@socialwarden.app',
         created_at: new Date().toISOString()
       };
-      
+
       // Generate a session token for demo user
       const sessionToken = `demo_session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       sessionStorage.setItem('smtw_session_token', sessionToken);
@@ -190,7 +190,7 @@ export default function Auth({ onAuthenticated }: AuthProps) {
             Quick access with demo user
           </p>
         </div>
-        
+
         <div className="mt-4 text-center">
           <p className="text-purple-300 text-xs">
             💡 This is a local demo. Data is stored in your browser.

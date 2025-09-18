@@ -22,7 +22,7 @@ export default function Auth({ onAuthenticated }: AuthProps) {
         onAuthenticated(user);
       }
     };
-    
+
     getUser();
 
     // Listen for auth changes
@@ -65,15 +65,15 @@ export default function Auth({ onAuthenticated }: AuthProps) {
   const handleDemoLogin = async () => {
     setLoading(true);
     setError(null);
-    
+
     // Create a demo account with a consistent ID
     const demoEmail = 'demo@socialwarden.app';
     const demoPassword = 'demo123456';
-    
+
     try {
       // Try to sign in first
       let result = await signInWithEmail(demoEmail, demoPassword);
-      
+
       if (result.error && result.error.message.includes('Invalid login credentials')) {
         // If demo account doesn't exist, create it
         result = await signUpWithEmail(demoEmail, demoPassword);

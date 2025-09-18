@@ -16,7 +16,7 @@ interface DashboardPropsExtended extends DashboardProps {
 
 const PLATFORM_COLORS = {
   Twitter: '#1DA1F2',
-  Facebook: '#4267B2', 
+  Facebook: '#4267B2',
   Instagram: '#E4405F',
   TikTok: '#000000',
   YouTube: '#FF0000',
@@ -45,12 +45,12 @@ export default function Dashboard({ user, onSignOut }: DashboardPropsExtended) {
   useEffect(() => {
     if (userId) {
       loadData();
-      
+
       // Set up auto-refresh every 30 seconds
       const interval = setInterval(() => {
         loadData();
       }, 30000);
-      
+
       return () => clearInterval(interval);
     }
   }, [userId, selectedDate]);
@@ -60,7 +60,7 @@ export default function Dashboard({ user, onSignOut }: DashboardPropsExtended) {
     try {
       console.log('Dashboard - User ID:', userId);
       console.log('Dashboard - Date:', selectedDate);
-      
+
       // Load usage data
       const usageResponse = await fetch(`${API_BASE_URL}/usage?user_id=${userId}&date=${selectedDate}`);
       if (usageResponse.ok) {
@@ -75,7 +75,7 @@ export default function Dashboard({ user, onSignOut }: DashboardPropsExtended) {
         const limitsData = await limitsResponse.json();
         setLimits(limitsData);
       }
-      
+
       setLastUpdated(new Date());
     } catch (error) {
       console.error('Error loading data:', error);
@@ -147,7 +147,7 @@ export default function Dashboard({ user, onSignOut }: DashboardPropsExtended) {
               max={new Date().toISOString().split('T')[0]}
             />
           </div>
-          
+
           <div className="flex items-center gap-4 text-white/70 text-sm">
             {refreshing && (
               <div className="flex items-center gap-2">
@@ -178,7 +178,7 @@ export default function Dashboard({ user, onSignOut }: DashboardPropsExtended) {
               🕐
             </div>
           </div>
-          
+
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
@@ -235,18 +235,16 @@ export default function Dashboard({ user, onSignOut }: DashboardPropsExtended) {
                     {item.limit > 0 && (
                       <div className="flex items-center gap-2">
                         <div className="w-20 h-2 bg-white/20 rounded-full overflow-hidden">
-                          <div 
-                            className={`h-full rounded-full ${
-                              item.percentage > 100 ? 'bg-red-500' : 
-                              item.percentage > 80 ? 'bg-yellow-500' : 'bg-green-500'
-                            }`}
+                          <div
+                            className={`h-full rounded-full ${item.percentage > 100 ? 'bg-red-500' :
+                                item.percentage > 80 ? 'bg-yellow-500' : 'bg-green-500'
+                              }`}
                             style={{ width: `${Math.min(item.percentage, 100)}%` }}
                           />
                         </div>
-                        <span className={`text-xs ${
-                          item.percentage > 100 ? 'text-red-300' : 
-                          item.percentage > 80 ? 'text-yellow-300' : 'text-green-300'
-                        }`}>
+                        <span className={`text-xs ${item.percentage > 100 ? 'text-red-300' :
+                            item.percentage > 80 ? 'text-yellow-300' : 'text-green-300'
+                          }`}>
                           {Math.round(item.percentage)}%
                         </span>
                       </div>
@@ -266,13 +264,13 @@ export default function Dashboard({ user, onSignOut }: DashboardPropsExtended) {
 
         {/* Quick Actions */}
         <div className="mt-8 flex gap-4 justify-center">
-          <button 
+          <button
             onClick={() => window.open('/limits', '_blank')}
             className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
           >
             ⚙️ Manage Limits
           </button>
-          <button 
+          <button
             onClick={loadData}
             disabled={refreshing}
             className="bg-purple-500 hover:bg-purple-600 disabled:bg-purple-400 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2"

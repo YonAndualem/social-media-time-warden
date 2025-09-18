@@ -18,10 +18,10 @@ export async function hashPassword(password: string): Promise<string> {
     // Generate a cryptographically secure random salt
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const iterations = 100000; // High iteration count for security
-    
+
     const encoder = new TextEncoder();
     const passwordData = encoder.encode(password);
-    
+
     // Import password as key material
     const keyMaterial = await crypto.subtle.importKey(
       'raw',
@@ -30,7 +30,7 @@ export async function hashPassword(password: string): Promise<string> {
       false,
       ['deriveBits']
     );
-    
+
     // Derive key using PBKDF2
     const derivedBits = await crypto.subtle.deriveBits(
       {
@@ -42,19 +42,19 @@ export async function hashPassword(password: string): Promise<string> {
       keyMaterial,
       256 // 32 bytes
     );
-    
+
     const hashArray = Array.from(new Uint8Array(derivedBits));
     const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-    
+
     const saltHex = Array.from(salt).map(byte => byte.toString(16).padStart(2, '0')).join('');
-    
+
     const result: HashedPassword = {
       hash: hashHex,
       salt: saltHex,
       iterations: iterations,
       algorithm: 'PBKDF2-SHA256'
     };
-    
+
     return JSON.stringify(result);
   } catch (error) {
     console.error('Error hashing password:', error);
@@ -72,20 +72,20 @@ export async function verifyPassword(password: string, storedHash: string): Prom
   try {
     // Parse the stored hash to extract salt and parameters
     const hashData: HashedPassword = JSON.parse(storedHash);
-    
+
     if (!hashData.hash || !hashData.salt || !hashData.iterations || !hashData.algorithm) {
       console.error('Invalid stored hash format');
       return false;
     }
-    
+
     // Convert salt from hex back to Uint8Array
     const saltArray = new Uint8Array(
       hashData.salt.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16)) || []
     );
-    
+
     const encoder = new TextEncoder();
     const passwordData = encoder.encode(password);
-    
+
     // Import password as key material
     const keyMaterial = await crypto.subtle.importKey(
       'raw',
@@ -94,7 +94,7 @@ export async function verifyPassword(password: string, storedHash: string): Prom
       false,
       ['deriveBits']
     );
-    
+
     // Derive key using the same parameters
     const derivedBits = await crypto.subtle.deriveBits(
       {
@@ -106,10 +106,10 @@ export async function verifyPassword(password: string, storedHash: string): Prom
       keyMaterial,
       256 // 32 bytes
     );
-    
+
     const hashArray = Array.from(new Uint8Array(derivedBits));
     const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-    
+
     return hashHex === hashData.hash;
   } catch (error) {
     console.error('Error verifying password:', error);

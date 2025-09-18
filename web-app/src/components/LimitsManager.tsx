@@ -121,7 +121,7 @@ export default function LimitsManager({ user }: LimitsManagerProps) {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <Link 
+            <Link
               href="/"
               className="text-white hover:text-purple-200 transition-colors"
             >
@@ -148,7 +148,7 @@ export default function LimitsManager({ user }: LimitsManagerProps) {
                     <p className="text-purple-200 text-sm">Daily time limit</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     🕐
@@ -163,7 +163,7 @@ export default function LimitsManager({ user }: LimitsManagerProps) {
                     />
                     <span className="text-purple-200 text-sm">min</span>
                   </div>
-                  
+
                   {limits[platform] > 0 && (
                     <div className="text-center">
                       <span className="inline-block px-3 py-1 bg-purple-500/30 rounded-full text-purple-100 text-sm">
@@ -209,7 +209,7 @@ export default function LimitsManager({ user }: LimitsManagerProps) {
           </div>
         </div>
       </div>
-      
+
       <Modal
         isOpen={modalConfig.isOpen}
         message={modalConfig.message}

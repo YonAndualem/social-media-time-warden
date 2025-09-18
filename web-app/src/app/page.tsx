@@ -13,7 +13,7 @@ export default function Home() {
     // Check if user is signed in via session storage
     const sessionToken = sessionStorage.getItem('smtw_session_token');
     const storedUser = sessionStorage.getItem('smtw_user');
-    
+
     if (sessionToken && storedUser) {
       try {
         const user = JSON.parse(storedUser);
